@@ -1,5 +1,9 @@
 import streamlit as st
-from textblob import TextBlob
+# From https://github.com/argosopentech/argos-translate
+import argostranslate.package
+import argostranslate.translate
+argostranslate.package.update_package_index()
+available_packages = argostranslate.package.get_available_packages()
 
 st.write("Translator app")
 st.write("You can translate into these languages: Chinese, Spanish, German, and French")
@@ -7,7 +11,6 @@ st.write("You can translate into these languages: Chinese, Spanish, German, and 
 st.write("Enter text and choose your language:")
 
 text = st.text_input("Enter input:", "")
-
 
 #methods
 #TASK 1
@@ -18,6 +21,7 @@ option = ''
 
 if classification_space == "Chinese":
     option = 'zh'
+
 #TASK 2
 #for language codes have a look at https://cloud.google.com/translate/docs/languages
 #complete the language translation option for spanish, german and french
@@ -26,8 +30,13 @@ if classification_space == "Chinese":
 #if classification_space == "Spanish"
 #   option = language code for Spanish
 
-
 if st.button('Translate'):
-    blob = TextBlob(text)
-    Pronounce = blob.translate(to = option)  
+    from_code = "en"
+    package_to_install = next(
+        filter(
+            lambda x: x.from_code == from_code and x.to_code == option, available_packages
+        )
+    )
+    argostranslate.package.install_from_path(package_to_install.download())
+    Pronounce = argostranslate.translate.translate(text, from_code, option)
     st.write(Pronounce)
